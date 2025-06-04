@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUL Bakery Blog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            max-width: 900px; /* Constrain max-width of body */
+            margin: 20px auto; /* Center the body content */
+            background-image: none;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        /* Ensure main containers take full width within the centered body */
+        .back-to-home, .container, .container-2, .section, .p-3 {
+            width: 100%;
+            max-width: none; /* Override any potential max-width from body for these elements */
+            box-sizing: border-box;
+        }
+
+        /* Back to Home Button */
+        .back-to-home {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: flex-start;
+            padding-left: 20px; /* Align with container padding */
+        }
+
+        .back-to-home a {
+            text-decoration: none;
+            padding: 10px 20px;
+            background-color: #ffc107;
+            color: #000;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-to-home a:hover {
+            background-color: #e0a800;
+        }
+
+        /* Container 1 (VC's message) */
+        .container {
+            background-color: rgb(236, 230, 230);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .container .img-2 {
+            height: 200px;
+            width: 180px;
+            border-radius: 50%;
+            border: 2.5px solid #ffc107;
+            margin-bottom: 20px;
+            object-fit: cover;
+        }
+
+        .container .p-1 {
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 1.4;
+            color: #333;
+            margin: 0 0 10px 0;
+        }
+
+        .p-2 {
+            font-size: 17px;
+            line-height: 1.6;
+            color: #555;
+            max-width: 600px;
+            margin: 0;
+        }
+
+        /* Container 2 (Core Values) */
+        .container-2 {
+            border-left: 1.5px solid #ffc107;
+            padding-left: 20px;
+            margin-bottom: 40px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #fff;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container-2 h1 {
+            font-size: 25px;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .container-2 ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+            max-width: fit-content;
+        }
+
+        .container-2 li {
+            text-transform: uppercase;
+            letter-spacing: 1.1px;
+            margin-bottom: 10px;
+            color: #666;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .container-2 li::before {
+            content: "\29BF"; /* Unicode for a filled circle or similar bullet */
+            margin-right: 8px;
+            color: #ffc107;
+            font-size: 1.2em;
+            line-height: 1;
+        }
+
+        /* Slider Heading */
+        .p-3 {
+            text-align: center;
+            font-size: 28px;
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        /* Slider Section */
+        .section {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 50px;
+        }
+
+        .slider {
+            width: 100%; /* Make slider responsive to its parent's width */
+            max-width: 700px; /* Limit max width for better appearance */
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .slide {
+            width: 600%; /* 100% * number of slides */
+            height: 100%;
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .st {
+            width: calc(100% / 6); /* Each slide takes equal width */
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+
+        .st img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* Hide radio buttons */
+        .slider input[type="radio"] {
+            display: none;
+        }
+
+        /* Manual navigation buttons */
+        .nav-m {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 2; /* Ensure manual buttons are above auto nav */
+        }
+
+        .m-btn {
+            width: 12px;
+            height: 12px;
+            background: #ccc;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .m-btn:hover {
+            background: #aaa;
+            transform: scale(1.2);
+        }
+
+        /* Auto navigation indicators (background for active status) */
+        .nav-auto {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1; /* Below manual buttons */
+        }
+
+        .nav-auto div {
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 193, 7, 0.7); /* A bit transparent for auto */
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        /* --- Slider Logic (based on checked radio button) --- */
+        #radio1:checked ~ .slide { transform: translateX(0%); }
+        #radio2:checked ~ .slide { transform: translateX(-16.666666666666668%); } /* 100% / 6 slides = 16.66...% */
+        #radio3:checked ~ .slide { transform: translateX(-33.333333333333336%); }
+        #radio4:checked ~ .slide { transform: translateX(-50%); }
+        #radio5:checked ~ .slide { transform: translateX(-66.66666666666667%); }
+        #radio6:checked ~ .slide { transform: translateX(-83.33333333333334%); }
+
+        /* Highlight active manual navigation button */
+        #radio1:checked ~ .nav-m label:nth-child(1),
+        #radio2:checked ~ .nav-m label:nth-child(2),
+        #radio3:checked ~ .nav-m label:nth-child(3),
+        #radio4:checked ~ .nav-m label:nth-child(4),
+        #radio5:checked ~ .nav-m label:nth-child(5),
+        #radio6:checked ~ .nav-m label:nth-child(6) {
+            background: #ffc107; /* Highlight with yellow when active */
+        }
+
+        /* Highlight active auto navigation indicator */
+        #radio1:checked ~ .nav-auto div:nth-child(1),
+        #radio2:checked ~ .nav-auto div:nth-child(2),
+        #radio3:checked ~ .nav-auto div:nth-child(3),
+        #radio4:checked ~ .nav-auto div:nth-child(4),
+        #radio5:checked ~ .nav-auto div:nth-child(5),
+        #radio6:checked ~ .nav-auto div:nth-child(6) {
+            background: #ffc107;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .slider {
+                height: 300px; /* Adjust height for smaller screens */
+            }
+            .container .p-1 {
+                font-size: 18px;
+            }
+            .p-2 {
+                font-size: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .back-to-home {
+                padding-left: 10px;
+            }
+            .container, .container-2 {
+                padding: 15px;
+            }
+            .container .img-2 {
+                width: 120px;
+                height: 120px;
+            }
+            .container .p-1 {
+                font-size: 16px;
+            }
+            .p-2 {
+                font-size: 14px;
+            }
+            .container-2 h1 {
+                font-size: 20px;
+            }
+            .slider {
+                height: 200px; /* Smaller height for very small screens */
+            }
+            .nav-m, .nav-auto {
+                bottom: 10px;
+                gap: 5px;
+            }
+            .m-btn, .nav-auto div {
+                width: 10px;
+                height: 10px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="back-to-home">
+        <a href="index.html">← Back to Home Page</a>
+    </div>
+
+    <div class="container">
+        <img class="img-2" src="vc aul (2).png" alt="Prof. Samuel Oyebandele">
+        <p class="p-1"> Prof. Samuel Oyebandele <br> Vice Chancellor of <i>AUL (Bakery)</i></p>
+       <p class="p-2">
+    Established in 2024, AUL Bakery began as a humble venture within Anchor University, Lagos, Nigeria. We are incredibly proud to now extend our fresh, high-quality baked goods to the entire university community, enriching daily life on campus. Our commitment remains to providing delicious and wholesome treats for everyone.
+</p>
+    </div>
+
+    <div class="container-2">
+        <h1>Core Values</h1>
+        <ul>
+            <li>Teamwork</li>
+            <li>Quality</li>
+            <li>Sustainability</li>
+            <li>Customer Satisfaction</li>
+        </ul>
+    </div>
+    <br><br>
+
+    <p class="p-3">Some pictures of AUL SUMPTUOUS BREAD</p>
+
+    <section class="section">
+        <div class="slider">
+            <input type="radio" name="radio-btn" id="radio1" checked>
+            <input type="radio" name="radio-btn" id="radio2">
+            <input type="radio" name="radio-btn" id="radio3">
+            <input type="radio" name="radio-btn" id="radio4">
+            <input type="radio" name="radio-btn" id="radio5">
+            <input type="radio" name="radio-btn" id="radio6">
+
+            <div class="slide">
+                <div class="st">
+                    <img src="Bread1...jpg" alt="Bread 1">
+                </div>
+                <div class="st">
+                    <img src="Bread2.jpg" alt="Bread 2">
+                </div>
+                <div class="st">
+                    <img src="Bread3.png" alt="Bread 3">
+                </div>
+                <div class="st">
+                    <img src="Bread 4.jpg" alt="Bread 4">
+                </div>
+                <div class="st">
+                    <img src="Bread 5.webp" alt="Bread 5">
+                </div>
+                <div class="st">
+                    <img src="Bread 6.jpg" alt="Bread 6">
+                </div>
+            </div>
+
+            <div class="nav-m">
+                <label for="radio1" class="m-btn"></label>
+                <label for="radio2" class="m-btn"></label>
+                <label for="radio3" class="m-btn"></label>
+                <label for="radio4" class="m-btn"></label>
+                <label for="radio5" class="m-btn"></label>
+                <label for="radio6" class="m-btn"></label>
+            </div>
+
+            <div class="nav-auto">
+                <div class="a-b1"></div>
+                <div class="a-b2"></div>
+                <div class="a-b3"></div>
+                <div class="a-b4"></div>
+                <div class="a-b5"></div>
+                <div class="a-b6"></div>
+            </div>
+        </div>
+    </section>
+
+    <script type="text/javascript">
+        var counter = 1;
+        var autoSlideInterval; // Declare a variable to hold the interval ID
+
+        function startAutoSlide() {
+            autoSlideInterval = setInterval(function() {
+                document.getElementById('radio' + counter).checked = true;
+                counter++;
+                if (counter > 6) {
+                    counter = 1;
+                }
+            }, 3000); // Changed to 3000ms (3 seconds)
+        }
+
+        // Start automatic sliding when the page loads
+        startAutoSlide();
+
+        // Add event listeners to manual navigation buttons to reset the auto-slide
+        document.querySelectorAll('.m-btn').forEach(function(button, index) {
+            button.addEventListener('click', function() {
+                clearInterval(autoSlideInterval); // Stop auto-sliding
+                counter = index + 1; // Set counter to the current manual slide
+                startAutoSlide(); // Restart auto-sliding from the current slide
+            });
+        });
+    </script>
+</body>
+</html>

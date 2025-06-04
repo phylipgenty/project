@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Customer Menu | AUL Bakery</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    header nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .products { margin-bottom: 40px; }
+    .product-gallery { display: flex; flex-wrap: wrap; gap: 20px; }
+    .product { border: 1px solid #ccc; padding: 15px; width: 180px; text-align: center; }
+    .product img { width: 100%; height: 120px; object-fit: cover; }
+    .quantity-control { margin: 10px 0; display: flex; justify-content: center; gap: 10px; align-items: center; }
+    .quantity-control button { padding: 5px 10px; cursor: pointer; }
+    .add-to-cart { background-color: #007bff; border: none; color: white; padding: 8px 12px; cursor: pointer; border-radius: 4px; }
+    .add-to-cart:hover { background-color: #0056b3; }
+    #cart { border-top: 2px solid #333; padding-top: 20px; }
+    #cart h2 { margin-bottom: 15px; }
+    #cart-items { margin-bottom: 15px; }
+    .cart-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+    .cart-item span { flex: 1; }
+    .cart-item .item-name { flex: 3; }
+    .checkout-btn { background-color: green; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
+    .checkout-btn:disabled { background-color: grey; cursor: not-allowed; }
+    .empty-msg { font-style: italic; color: #666; }
+  </style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <h1>AUL Bakery</h1>
+  </nav>
+</header>
+
+<main>
+  <section class="products" id="products">
+    <h2>Order Now!</h2>
+    <div class="product-gallery" id="productGallery">
+      <!-- Products will be loaded here dynamically -->
+    </div>
+  </section>
+
+  <section id="cart">
+    <h2>Your Cart</h2>
+    <div id="cart-items">
+      <p class="empty-msg">Your cart is empty.</p>
+    </div>
+    <p><strong>Total: ₦<span id="cart-total">0</span></strong></p>
+    <button id="checkoutBtn" class="checkout-btn" disabled>Checkout</button>
+  </section>
+</main>
+
+<script>
+  const breads = [
+    { id: 'small-classic', name: 'Small Classic Loaf', price: 400, img: 'small bread.jpeg' },
+    { id: 'medium-classic', name: 'Medium Classic Loaf', price: 600, img: 'bread1.jpg' },
+    { id: 'classic', name: 'Classic Loaf', price: 800, img: 'Classic bread.png' },
+    { id: 'slice-classic', name: 'Slice Classic Loaf', price: 1000, img: 'slice bread.jpg' },
+    { id: 'coconut', name: 'Coconut Bread', price: 1500, img: 'coconut-bread-3.jpg' },
+    { id: 'sardin', name: 'Sardin Bread', price: 2500, img: 'Sadin Bread 2.png' }
+  ];
+
+  // Read availability from localStorage (default all false if none)
+  const availability = JSON.parse(localStorage.getItem('breadAvailability') || '{}');
+
+  // Filter available breads
+  const availableBreads = breads.filter(b => availability[b.id]);
+
+  const productGallery = document.getElementById('productGallery');
+  const cartItemsContainer = document.getElementById('cart-items');
+  const cartTotalElem = document.getElementById('cart-total');
+  const checkoutBtn = document.getElementById('checkoutBtn');
+
+  let cart = {};
+
+  function renderProducts() {
+    if (availableBreads.length === 0) {
+      productGallery.innerHTML = '<p>No breads available right now. Please check back later.</p>';
+      return;
+    }
+
+    productGallery.innerHTML = availableBreads.map(b => `
+      <div class="product" data-id="${b.id}" data-price="${b.price}">
+        <img src="${b.img}" alt="${b.name}" />
+        <p class="price">₦${b.price}</p>
+        <p class="name">${b.name}</p>
+        <div class="quantity-control">
+          <button class="minus">-</button>
+          <span class="quantity">0</span>
+          <button class="plus">+</button>
+        </div>
+        <button class="add-to-cart">Add to Cart</button>
+      </div>
+    `).join('');
+
+    productGallery.querySelectorAll('.product').forEach(productElem => {
+      const qtySpan = productElem.querySelector('.quantity');
+      const minusBtn = productElem.querySelector('.minus');
+      const plusBtn = productElem.querySelector('.plus');
+      const addToCartBtn = productElem.querySelector('.add-to-cart');
+
+      minusBtn.addEventListener('click', () => {
+        let qty = parseInt(qtySpan.textContent);
+        if (qty > 0) qty--;
+        qtySpan.textContent = qty;
+      });
+
+      plusBtn.addEventListener('click', () => {
+        let qty = parseInt(qtySpan.textContent);
+        qty++;
+        qtySpan.textContent = qty;
+      });
+
+      addToCartBtn.addEventListener('click', () => {
+        let qty = parseInt(qtySpan.textContent);
+        if (qty === 0) {
+          alert('Please select quantity before adding to cart.');
+          return;
+        }
+        const breadId = productElem.getAttribute('data-id');
+        addToCart(breadId, qty);
+        qtySpan.textContent = '0';
+      });
+    });
+  }
+
+  function addToCart(breadId, qtyToAdd) {
+    if (cart[breadId]) {
+      cart[breadId] += qtyToAdd;
+    } else {
+      cart[breadId] = qtyToAdd;
+    }
+    renderCart();
+  }
+
+  function removeFromCart(breadId) {
+    delete cart[breadId];
+    renderCart();
+  }
+
+  function renderCart() {
+    const keys = Object.keys(cart);
+    if (keys.length === 0) {
+      cartItemsContainer.innerHTML = '<p class="empty-msg">Your cart is empty.</p>';
+      cartTotalElem.textContent = '0';
+      checkoutBtn.disabled = true;
+      return;
+    }
+
+    let total = 0;
+    cartItemsContainer.innerHTML = keys.map(bid => {
+      const bread = breads.find(b => b.id === bid);
+      const qty = cart[bid];
+      const itemTotal = bread.price * qty;
+      total += itemTotal;
+      return `
+        <div class="cart-item
